@@ -9,7 +9,7 @@
 import Metal
 
 let devices = MTLCopyAllDevices()
-let sessionLength : TimeInterval = 10 // seconds
+let sessionLength : TimeInterval = 5 // seconds
 let maxIterations = 10
 
 print("Available Metal Devices:")
@@ -23,7 +23,8 @@ for device in devices {
 }
 
 print("Generating reference...")
-let imgUrl = Bundle.main.url(forResource: "05mpx", withExtension: "jpg")!
+
+let imgUrl = Bundle.main.url(forResource: "38mpx", withExtension: "jpg")!
 let ref = ReferenceRenderer(imageAt: imgUrl)!
 let startCpuRender = Date()
 ref.render()
@@ -44,9 +45,9 @@ for device in devices {
   let renderSessionStart = Date()
   var saveTime : TimeInterval = 0
   var n = 0
-//  while Date().timeIntervalSince(renderSessionStart) - saveTime < sessionLength {
+  while Date().timeIntervalSince(renderSessionStart) - saveTime < sessionLength {
   
-  while n < maxIterations {
+//  while n < maxIterations {
     let renderStart = Date()
     let success = renderer.render()
     let renderEnd = Date()
@@ -60,7 +61,7 @@ for device in devices {
     
     n += 1
     let saveStart = Date()
-    renderer.saveOutput(to: "/tmp/\(device.name!)_\(n).tiff")
+    renderer.saveOutput(to: "/tmp/\(device.name!)_\(n).jpg")
     let saveEnd = Date()
     saveTime += saveEnd.timeIntervalSince(saveStart)
   }

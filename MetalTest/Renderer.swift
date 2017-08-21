@@ -7,7 +7,19 @@
 //
 
 import Metal
+import MetalKit
 import Foundation
+
+func loadInput(device : MTLDevice, location : URL) -> MTLTexture
+{
+  let loader = MTKTextureLoader(device: device)
+  let loadOptions = [
+    MTKTextureLoaderOptionTextureUsage : NSNumber(value: MTLTextureUsage.shaderRead.rawValue),
+    MTKTextureLoaderOriginTopLeft : NSNumber(value: true)
+  ]
+  
+  return (try? loader.newTexture(withContentsOf: location, options:loadOptions))!
+}
 
 class Renderer {
   
@@ -28,15 +40,13 @@ class Renderer {
     let kernelFunction = defaultLib.makeFunction(name: "grayscaleKernel")!
     computePipelineState = (try? device.makeComputePipelineState(function: kernelFunction))!
     
-    let img = ImageLoader(location: imageURL)
+    inputTexture = loadInput(device: device, location: imageURL)
+
     let textureDesc = MTLTextureDescriptor()
     textureDesc.textureType = .type2D
     textureDesc.pixelFormat = .rgba8Unorm
-    textureDesc.width = Int(img.width)
-    textureDesc.height = Int(img.height)
-    
-    textureDesc.usage = [ .shaderRead ]
-    inputTexture = device.makeTexture(descriptor: textureDesc)
+    textureDesc.width = inputTexture.width
+    textureDesc.height = inputTexture.height
     
     textureDesc.usage = [ .shaderWrite ]
     outputTexture = device.makeTexture(descriptor: textureDesc)
@@ -46,16 +56,11 @@ class Renderer {
     workTexture1 = device.makeTexture(descriptor: textureDesc)
     workTexture2 = device.makeTexture(descriptor: textureDesc)
     
-    let region = MTLRegionMake2D(0, 0, textureDesc.width, textureDesc.height)
-    let nsdata = img.data as NSData
 
 //    img.data.withUnsafeBytes { (rawPtr : UnsafePointer<UInt8>) in
 //      displayRawBuffer(rawPtr, Int32(textureDesc.width), Int32(textureDesc.height))
 //    }
     
-    inputTexture.replace(region: region, mipmapLevel: 0,
-                         withBytes: nsdata.bytes,
-                         bytesPerRow: Int(img.bytesPerRow))
     
     commandQueue = device.makeCommandQueue()
     
@@ -95,17 +100,33 @@ class Renderer {
     return commandBuffer
   }
   
+  func enqueueOutputBlit() -> MTLCommandBuffer
+  {
+    let commandBuffer = commandQueue.makeCommandBuffer()
+    commandBuffer.label = "Blit command"
+    let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+    blitEncoder.synchronize(resource: outputTexture)
+    blitEncoder.endEncoding()
+    
+    commandBuffer.commit()
+    return commandBuffer
+  }
+  
   func render() -> Bool
   {
-    _ = enqueueKernel(input: inputTexture, output: workTexture1)
+    var commandBuffers = [MTLCommandBuffer]()
+    
+    commandBuffers.append(enqueueKernel(input: inputTexture, output: workTexture1))
     
     for _ in 1 ... 24 {
-      _ = enqueueKernel(input: workTexture1, output: workTexture2)
-      _ = enqueueKernel(input: workTexture2, output: workTexture1)
+      commandBuffers.append(enqueueKernel(input: workTexture1, output: workTexture2))
+      commandBuffers.append(enqueueKernel(input: workTexture2, output: workTexture1))
     }
-    let commandBuffer = enqueueKernel(input: workTexture1, output: outputTexture)
+    commandBuffers.append(enqueueKernel(input: workTexture1, output: outputTexture))
     
-    commandBuffer.waitUntilCompleted()
+    commandBuffers.append(enqueueOutputBlit())
+    
+    commandBuffers.last?.waitUntilCompleted()
     commandQueue.insertDebugCaptureBoundary()
     
 //    if true {
@@ -134,12 +155,14 @@ class Renderer {
 //      }
 //    }
     
-    if let error = commandBuffer.error {
-      errors.append(error)
-      return false
+    for commandBuffer in commandBuffers {
+      if let error = commandBuffer.error {
+        errors.append(error)
+        print(error)
+      }
     }
     
-    return true
+    return errors.isEmpty
   }
   
   func saveOutput(to : String)

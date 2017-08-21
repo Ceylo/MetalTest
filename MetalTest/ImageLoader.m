@@ -79,7 +79,7 @@ void saveImage(const unsigned char* const data, int width, int height, NSString*
                                          bytesPerRow:width * 4
                                         bitsPerPixel:32];
   
-  NSData *nsdata = [rep representationUsingType: NSTIFFFileType properties: nil];
+  NSData *nsdata = [rep representationUsingType: NSJPEGFileType properties: nil];
   [nsdata writeToFile: path atomically: NO];
 }
 
