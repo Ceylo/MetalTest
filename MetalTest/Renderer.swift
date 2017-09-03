@@ -15,7 +15,8 @@ func loadInput(device : MTLDevice, location : URL) -> MTLTexture
   let loader = MTKTextureLoader(device: device)
   let loadOptions = [
     MTKTextureLoaderOptionTextureUsage : NSNumber(value: MTLTextureUsage.shaderRead.rawValue),
-    MTKTextureLoaderOriginTopLeft : NSNumber(value: true)
+    MTKTextureLoaderOriginTopLeft : NSNumber(value: true),
+    MTKTextureLoaderOptionSRGB : NSNumber(value: false)
   ]
   
   return (try? loader.newTexture(withContentsOf: location, options:loadOptions))!
@@ -30,15 +31,14 @@ class Renderer {
   var outputTexture : MTLTexture
   var workTexture1 : MTLTexture
   var workTexture2 : MTLTexture
-  var errors : Array<Error> = []
   
   init(imageURL : URL, device : MTLDevice)
   {
     self.device = device
     
     let defaultLib = device.newDefaultLibrary()!
-    let kernelFunction = defaultLib.makeFunction(name: "grayscaleKernel")!
-    computePipelineState = (try? device.makeComputePipelineState(function: kernelFunction))!
+    let blurFunction = defaultLib.makeFunction(name: "blur3x3Kernel")!
+    computePipelineState = (try? device.makeComputePipelineState(function: blurFunction))!
     
     inputTexture = loadInput(device: device, location: imageURL)
 
@@ -50,37 +50,22 @@ class Renderer {
     
     textureDesc.usage = [ .shaderWrite ]
     outputTexture = device.makeTexture(descriptor: textureDesc)
+    outputTexture.label = "Final Output"
     
+    textureDesc.pixelFormat = .bgra8Unorm
     textureDesc.usage = [ .shaderRead, .shaderWrite ]
     textureDesc.storageMode = .private
     workTexture1 = device.makeTexture(descriptor: textureDesc)
+    workTexture1.label = "Working texture 1"
     workTexture2 = device.makeTexture(descriptor: textureDesc)
-    
-
-//    img.data.withUnsafeBytes { (rawPtr : UnsafePointer<UInt8>) in
-//      displayRawBuffer(rawPtr, Int32(textureDesc.width), Int32(textureDesc.height))
-//    }
-    
-    
+    workTexture2.label = "Working texture 2"
     commandQueue = device.makeCommandQueue()
-    
-//    var outBuffer = Data(count: inputTexture.width * 4 * MemoryLayout<UInt8>.size * inputTexture.height)
-//    outBuffer.withUnsafeMutableBytes { ( buff : UnsafeMutablePointer<UInt8>) in
-//      inputTexture.getBytes(UnsafeMutableRawPointer(buff),
-//                            bytesPerRow: inputTexture.width * 4 * MemoryLayout<UInt8>.size,
-//                            from: region,
-//                            mipmapLevel: 0)
-//      
-//      displayRawBuffer(buff, Int32(inputTexture.width), Int32(inputTexture.height))
-//    }
   }
   
-  func enqueueKernel(input : MTLTexture,
-                     output : MTLTexture) -> MTLCommandBuffer
+  func enqueueKernel(commandBuffer : MTLCommandBuffer,
+                     input : MTLTexture,
+                     output : MTLTexture)
   {
-    let commandBuffer = commandQueue.makeCommandBuffer()
-    commandBuffer.label = "MyCommand"
-    
     let w = computePipelineState.threadExecutionWidth
     let h = computePipelineState.maxTotalThreadsPerThreadgroup / w
     
@@ -90,79 +75,39 @@ class Renderer {
                                       depth: 1)
     
     let computeEncoder = commandBuffer.makeComputeCommandEncoder()
+    computeEncoder.label = "3x3 blur kernel"
     computeEncoder.setComputePipelineState(computePipelineState)
-    computeEncoder.setTexture(input, at: 0)
-    computeEncoder.setTexture(output, at: 1)
+    computeEncoder.setTexture(input, at: Int(kBlur3x3InputTexture.rawValue))
+    computeEncoder.setTexture(output, at: Int(kBlur3x3OutputTexture.rawValue))
     computeEncoder.dispatchThreadgroups(threadGroupsPerGrid, threadsPerThreadgroup: threadsPerThreadGroup)
     computeEncoder.endEncoding()
-    
-    commandBuffer.commit()
-    return commandBuffer
   }
   
-  func enqueueOutputBlit() -> MTLCommandBuffer
+  func render()
   {
-    let commandBuffer = commandQueue.makeCommandBuffer()
-    commandBuffer.label = "Blit command"
-    let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+    let allCommandsBuffer = commandQueue.makeCommandBuffer()
+    
+    enqueueKernel(commandBuffer: allCommandsBuffer, input: inputTexture, output: workTexture1)
+    
+    for _ in 1 ... 24 {
+      enqueueKernel(commandBuffer: allCommandsBuffer, input: workTexture1, output: workTexture2)
+      enqueueKernel(commandBuffer: allCommandsBuffer, input: workTexture2, output: workTexture1)
+    }
+    enqueueKernel(commandBuffer: allCommandsBuffer, input: workTexture1, output: outputTexture)
+    
+    // Fetch texture from GPU
+    let blitEncoder = allCommandsBuffer.makeBlitCommandEncoder()
+    blitEncoder.label = "CPU/GPU sync"
     blitEncoder.synchronize(resource: outputTexture)
     blitEncoder.endEncoding()
     
-    commandBuffer.commit()
-    return commandBuffer
-  }
-  
-  func render() -> Bool
-  {
-    var commandBuffers = [MTLCommandBuffer]()
-    
-    commandBuffers.append(enqueueKernel(input: inputTexture, output: workTexture1))
-    
-    for _ in 1 ... 24 {
-      commandBuffers.append(enqueueKernel(input: workTexture1, output: workTexture2))
-      commandBuffers.append(enqueueKernel(input: workTexture2, output: workTexture1))
-    }
-    commandBuffers.append(enqueueKernel(input: workTexture1, output: outputTexture))
-    
-    commandBuffers.append(enqueueOutputBlit())
-    
-    commandBuffers.last?.waitUntilCompleted()
+    allCommandsBuffer.commit()
+    allCommandsBuffer.waitUntilCompleted()
     commandQueue.insertDebugCaptureBoundary()
     
-//    if true {
-//        var outBuffer = Data(count: inputTexture.width * 4 * MemoryLayout<UInt8>.size * inputTexture.height)
-//        outBuffer.withUnsafeMutableBytes { ( buff : UnsafeMutablePointer<UInt8>) in
-//          let region = MTLRegionMake2D(0, 0, inputTexture.width, inputTexture.height)
-//          inputTexture.getBytes(UnsafeMutableRawPointer(buff),
-//                                bytesPerRow: inputTexture.width * 4 * MemoryLayout<UInt8>.size,
-//                                from: region,
-//                                mipmapLevel: 0)
-//          
-//          displayRawBuffer(buff, Int32(inputTexture.width), Int32(inputTexture.height))
-//        }
-//    }
-//    
-//    if true {
-//      var outBuffer = Data(count: outputTexture.width * 4 * MemoryLayout<UInt8>.size * outputTexture.height)
-//      outBuffer.withUnsafeMutableBytes { ( buff : UnsafeMutablePointer<UInt8>) in
-//        let region = MTLRegionMake2D(0, 0, outputTexture.width, outputTexture.height)
-//        outputTexture.getBytes(UnsafeMutableRawPointer(buff),
-//                              bytesPerRow: outputTexture.width * 4 * MemoryLayout<UInt8>.size,
-//                              from: region,
-//                              mipmapLevel: 0)
-//        
-//        displayRawBuffer(buff, Int32(outputTexture.width), Int32(outputTexture.height))
-//      }
-//    }
-    
-    for commandBuffer in commandBuffers {
-      if let error = commandBuffer.error {
-        errors.append(error)
-        print(error)
-      }
+    if let error = allCommandsBuffer.error {
+      print("Metal error: \(error)")
     }
-    
-    return errors.isEmpty
   }
   
   func saveOutput(to : String)

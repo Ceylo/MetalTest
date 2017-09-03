@@ -5,3 +5,4 @@
 
 #import "ImageLoader.h"
 #import "ReferenceRenderer.h"
+#import "MetalTextureIDs.h"

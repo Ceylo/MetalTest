@@ -9,7 +9,13 @@
 /* Begin PBXBuildFile section */
 		870DDA581F44F42B00AB142A /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 870DDA571F44F42B00AB142A /* Metal.framework */; };
 		871878721F458EDF0034282F /* ReferenceRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 871878711F458EDF0034282F /* ReferenceRenderer.m */; };
+		873E26FA1F519ACA00B7EC78 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 873E26F91F519ACA00B7EC78 /* main.cpp */; };
+		873E27001F519B2300B7EC78 /* Renderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 873E26FE1F519B2300B7EC78 /* Renderer.mm */; };
 		874A23861F3A5BF700B6DDF5 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874A23851F3A5BF700B6DDF5 /* ImageLoader.swift */; };
+		8753854E1F5AE29F007D8F36 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 870DDA571F44F42B00AB142A /* Metal.framework */; };
+		875385501F5AE29F007D8F36 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8753854F1F5AE29F007D8F36 /* MetalKit.framework */; };
+		875385511F5AE479007D8F36 /* GPGPU.metal in Sources */ = {isa = PBXBuildFile; fileRef = 878128631F2A857200EFB319 /* GPGPU.metal */; };
+		875385521F5AE4A1007D8F36 /* 24mpx.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8789F2801F4073D50016D56B /* 24mpx.jpg */; };
 		8781284E1F2A5BC400EFB319 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8781284D1F2A5BC400EFB319 /* main.swift */; };
 		878128501F2A5BC400EFB319 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8781284F1F2A5BC400EFB319 /* Renderer.swift */; };
 		878128521F2A5BC400EFB319 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 878128511F2A5BC400EFB319 /* Assets.xcassets */; };
@@ -20,11 +26,29 @@
 		87BEF32E1F40D05E00B32106 /* 05mpx.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87BEF32D1F40D05E00B32106 /* 05mpx.jpg */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		873E26F51F519AC900B7EC78 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				875385521F5AE4A1007D8F36 /* 24mpx.jpg in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		870DDA571F44F42B00AB142A /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		871878701F458EDF0034282F /* ReferenceRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReferenceRenderer.h; sourceTree = "<group>"; };
 		871878711F458EDF0034282F /* ReferenceRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReferenceRenderer.m; sourceTree = "<group>"; };
+		873E26F71F519AC900B7EC78 /* CxxMetalTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CxxMetalTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		873E26F91F519ACA00B7EC78 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		873E26FE1F519B2300B7EC78 /* Renderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Renderer.mm; sourceTree = "<group>"; };
+		873E26FF1F519B2300B7EC78 /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
 		874A23851F3A5BF700B6DDF5 /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		8753854F1F5AE29F007D8F36 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		876361FB1F2D2AE100179A59 /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		876361FC1F2D2C2800179A59 /* Utils_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils_impl.h; sourceTree = "<group>"; };
 		8781284A1F2A5BC400EFB319 /* MetalTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MetalTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -38,10 +62,20 @@
 		8789F2841F4095BC0016D56B /* ImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageLoader.m; sourceTree = "<group>"; };
 		8789F2851F4095BC0016D56B /* ImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageLoader.h; sourceTree = "<group>"; };
 		8789F2861F4095BC0016D56B /* MetalTest-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MetalTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		87AFD3401F4E2E1B00ADE9B8 /* MetalTextureIDs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetalTextureIDs.h; sourceTree = "<group>"; };
 		87BEF32D1F40D05E00B32106 /* 05mpx.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 05mpx.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		873E26F41F519AC900B7EC78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				875385501F5AE29F007D8F36 /* MetalKit.framework in Frameworks */,
+				8753854E1F5AE29F007D8F36 /* Metal.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		878128471F2A5BC400EFB319 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -56,9 +90,20 @@
 		870DDA561F44F42A00AB142A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8753854F1F5AE29F007D8F36 /* MetalKit.framework */,
 				870DDA571F44F42B00AB142A /* Metal.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		873E26F81F519ACA00B7EC78 /* CxxMetalTest */ = {
+			isa = PBXGroup;
+			children = (
+				873E26F91F519ACA00B7EC78 /* main.cpp */,
+				873E26FF1F519B2300B7EC78 /* Renderer.hpp */,
+				873E26FE1F519B2300B7EC78 /* Renderer.mm */,
+			);
+			path = CxxMetalTest;
 			sourceTree = "<group>";
 		};
 		876361F81F2D2AC400179A59 /* MetalLib */ = {
@@ -67,6 +112,7 @@
 				878128631F2A857200EFB319 /* GPGPU.metal */,
 				876361FB1F2D2AE100179A59 /* Utils.h */,
 				876361FC1F2D2C2800179A59 /* Utils_impl.h */,
+				87AFD3401F4E2E1B00ADE9B8 /* MetalTextureIDs.h */,
 			);
 			name = MetalLib;
 			sourceTree = "<group>";
@@ -75,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				8781284C1F2A5BC400EFB319 /* MetalTest */,
+				873E26F81F519ACA00B7EC78 /* CxxMetalTest */,
 				8781284B1F2A5BC400EFB319 /* Products */,
 				870DDA561F44F42A00AB142A /* Frameworks */,
 			);
@@ -84,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				8781284A1F2A5BC400EFB319 /* MetalTest.app */,
+				873E26F71F519AC900B7EC78 /* CxxMetalTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -112,6 +160,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		873E26F61F519AC900B7EC78 /* CxxMetalTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 873E26FD1F519ACA00B7EC78 /* Build configuration list for PBXNativeTarget "CxxMetalTest" */;
+			buildPhases = (
+				873E26F31F519AC900B7EC78 /* Sources */,
+				873E26F41F519AC900B7EC78 /* Frameworks */,
+				873E26F51F519AC900B7EC78 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CxxMetalTest;
+			productName = CxxMetalTest;
+			productReference = 873E26F71F519AC900B7EC78 /* CxxMetalTest */;
+			productType = "com.apple.product-type.tool";
+		};
 		878128491F2A5BC400EFB319 /* MetalTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 878128591F2A5BC500EFB319 /* Build configuration list for PBXNativeTarget "MetalTest" */;
@@ -139,6 +204,11 @@
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = Yalir;
 				TargetAttributes = {
+					873E26F61F519AC900B7EC78 = {
+						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = 3BF75NMSEQ;
+						ProvisioningStyle = Automatic;
+					};
 					878128491F2A5BC400EFB319 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = 3BF75NMSEQ;
@@ -161,6 +231,7 @@
 			projectRoot = "";
 			targets = (
 				878128491F2A5BC400EFB319 /* MetalTest */,
+				873E26F61F519AC900B7EC78 /* CxxMetalTest */,
 			);
 		};
 /* End PBXProject section */
@@ -180,6 +251,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		873E26F31F519AC900B7EC78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				875385511F5AE479007D8F36 /* GPGPU.metal in Sources */,
+				873E27001F519B2300B7EC78 /* Renderer.mm in Sources */,
+				873E26FA1F519ACA00B7EC78 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		878128461F2A5BC400EFB319 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -196,6 +277,24 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		873E26FB1F519ACA00B7EC78 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				DEVELOPMENT_TEAM = 3BF75NMSEQ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		873E26FC1F519ACA00B7EC78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				DEVELOPMENT_TEAM = 3BF75NMSEQ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		878128571F2A5BC500EFB319 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -324,6 +423,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		873E26FD1F519ACA00B7EC78 /* Build configuration list for PBXNativeTarget "CxxMetalTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				873E26FB1F519ACA00B7EC78 /* Debug */,
+				873E26FC1F519ACA00B7EC78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		878128451F2A5BC400EFB319 /* Build configuration list for PBXProject "MetalTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
